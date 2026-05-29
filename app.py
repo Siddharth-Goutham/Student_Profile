@@ -3,9 +3,9 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.secret_key = 'bitzen_secure_node_secret_session_key'
 
-# Central STUDENT_PROFILE Source of Truth
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'dev_fallback_temporary_key_123')
+
 STUDENT_PROFILE = {
     "name": "Siddharth Goutham",
     "semester": "2nd Sem",
