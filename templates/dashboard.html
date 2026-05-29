@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BITzen Hub - Bangalore Institute of Technology</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0b0c16;
+            --card-bg: rgba(18, 20, 36, 0.85);
+            --text-main: #ffffff;
+            --text-muted: #737898;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --border-color: #22253f;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; display: flex; justify-content: center; min-height: 100vh; position: relative; }
+        #bg-animation-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
+
+        .container { max-width: 480px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 2; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .logo-title { font-size: 1.4rem; font-weight: 700; background: linear-gradient(to right, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logout-link { color: var(--text-muted); font-size: 0.8rem; text-decoration: none; }
+
+        .profile-sub-bar { display: flex; gap: 6px; font-size: 0.72rem; color: var(--text-muted); margin-top: -10px; flex-wrap: wrap; }
+        .profile-sub-bar span { background-color: #1a1d36; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border-color); }
+
+        .scope-selector { display: grid; grid-template-columns: 1fr 1fr; background: #15172b; padding: 4px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .scope-btn { background: none; border: none; padding: 8px; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; cursor: pointer; border-radius: 7px; text-align: center; }
+        .scope-btn.active { background-color: var(--accent-purple); color: white; }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .metric-card { background-color: var(--card-bg); border-radius: 12px; padding: 14px; border-top: 3px solid transparent; backdrop-filter: blur(10px); }
+        .metric-card.cgpa { border-top-color: var(--accent-purple); }
+        .metric-card.attendance { border-top-color: var(--accent-pink); }
+
+        .metric-card label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+        .metric-card .value { font-size: 1.6rem; font-weight: 700; margin-top: 2px; }
+        .metric-card .subtext { font-size: 0.7rem; margin-top: 4px; color: var(--accent-green); }
+
+        .section-card { background-color: var(--card-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); backdrop-filter: blur(10px); }
+        .section-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+
+        .tool-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .tool-row:last-child { border-bottom: none; }
+        .tool-label h5 { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; }
+        .tool-label p { font-size: 0.75rem; color: var(--text-muted); }
+
+        .vote-btn-group { display: flex; gap: 6px; }
+        .vote-btn { background-color: #1c1e36; border: 1px solid var(--border-color); color: white; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .vote-btn.yes:hover { border-color: var(--accent-green); color: var(--accent-green); }
+        .vote-btn.no:hover { border-color: var(--accent-red); color: var(--accent-red); }
+
+        .vibe-emojis { display: flex; justify-content: space-between; width: 100%; padding-top: 5px; }
+        .vibe-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .vibe-emoji { font-size: 1.35rem; transition: 0.2s; opacity: 0.6; }
+        .vibe-count { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; font-weight: bold; }
+        .vibe-wrapper:hover .vibe-emoji, .vibe-wrapper.active .vibe-emoji { opacity: 1; transform: scale(1.15); }
+
+        .instant-form textarea { width: 100%; background-color: #16182c; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px; color: white; font-size: 0.85rem; resize: none; outline: none; }
+        .form-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+        .form-controls select { background-color: #16182c; color: white; border: 1px solid var(--border-color); padding: 5px; border-radius: 6px; font-size: 0.75rem; }
+        .submit-btn { background-color: var(--accent-purple); color: white; border: none; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+
+        .instant-post { background-color: #15172a; border-radius: 12px; padding: 14px; margin-top: 12px; border-left: 4px solid var(--text-muted); position: relative; }
+        .post-tag { font-size: 0.65rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; position: absolute; top: 14px; right: 14px; }
+        .tag-urgent { background-color: rgba(239,68,68,0.15); color: var(--accent-red); }
+        .tag-ghost { background-color: rgba(245,158,11,0.15); color: var(--accent-orange); }
+
+        .post-meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .stamp-verified { color: var(--accent-green); font-weight: bold; font-size: 0.7rem; background: rgba(16,185,129,0.1); padding: 1px 4px; border-radius: 4px; }
+        .post-content { font-size: 0.85rem; line-height: 1.4; color: #e2e8f0; }
+        .boost-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); }
+        .boost-trigger-btn { background: none; border: none; color: var(--accent-pink); cursor: pointer; font-weight: 600; }
+
+        /* Subject Metrics Stylesheet Layout */
+        .subject-row { margin-bottom: 14px; cursor: pointer; }
+        .subject-info { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; align-items: center; }
+        .progress-bar-bg { background-color: #22253f; height: 7px; border-radius: 4px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 4px; }
+        .fill-danger { background-color: var(--accent-red); }
+        .fill-warning { background-color: var(--accent-orange); }
+        .fill-good { background-color: #06b6d4; }
+        .fill-excellent { background-color: var(--accent-green); }
+        .insight-text { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
+
+        /* Timetable classes mapping setup */
+        .schedule-container { max-height: 200px; overflow-y: auto; }
+        .schedule-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .time-col { width: 60px; font-size: 0.8rem; color: var(--text-muted); font-weight: bold; }
+        .details-col { flex-grow: 1; padding-left: 8px; }
+        .details-col h5 { font-size: 0.8rem; font-weight: 600; }
+        .details-col p { font-size: 0.7rem; color: var(--text-muted); }
+        .tag-badge { font-size: 0.6rem; font-weight: bold; padding: 2px 5px; border-radius: 4px; }
+        .tag-live { background-color: rgba(16,185,129,0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .tag-next { background-color: rgba(139,92,246,0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+
+        .leaderboard-item { display: flex; align-items: center; padding: 10px 0; font-size: 0.85rem; }
+        .rank-num { width: 30px; font-weight: bold; text-align: center; }
+        .avatar { width: 32px; height: 32px; background-color: var(--accent-purple); border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.75rem; }
+        .leaderboard-item.user-row { background-color: #8b5cf615; border-radius: 8px; padding: 10px; }
+        .xp-val { margin-left: auto; color: var(--text-muted); }
+
+        /* Modal Overlays & Custom Styled Reveal Answer Button */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); justify-content: center; align-items: center; padding: 20px; z-index: 100; }
+        .modal-content { background-color: #121424; border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; max-width: 400px; width: 100%; text-align: center; }
+        .action-btn { background-color: var(--accent-purple); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 8px; }
+        .close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.85rem; }
+
+        .reveal-btn {
+            background: none;
+            border: 1px solid var(--accent-pink);
+            color: var(--accent-pink);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            display: inline-block;
+            transition: 0.2s;
+        }
+        .reveal-btn:hover {
+            background-color: rgba(236, 72, 153, 0.12);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bg-animation-canvas"></canvas>
+
+<div class="container">
+
+    <div class="header">
+        <h2 class="logo-title">BITzen Node</h2>
+        <a href="/logout" class="logout-link">Logout →</a>
+    </div>
+
+    <div class="profile-sub-bar">
+        <span>📍 {{ profile.college }}</span>
+        <span>🎓 {{ profile.semester }} • {{ profile.department }}</span>
+        <span>⚡ Section: {{ profile.section }}</span>
+    </div>
+
+    <div class="scope-selector">
+        <div class="scope-btn active">ISE Space (Dept)</div>
+        <div class="scope-btn" onclick="alert('Global scope filters locked for MVP validation models.')">BIT Global (Alumni+)</div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card cgpa">
+            <label>CGPA</label>
+            <div class="value">{{ profile.cgpa }}</div>
+            <div class="subtext">{{ profile.cgpa_change }}</div>
+        </div>
+        <div class="metric-card attendance">
+            <label>Attendance</label>
+            <div class="value">{{ profile.attendance }}%</div>
+            <div class="subtext">⚙️ {{ profile.attendance_status }}</div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">Real-Time Class Tools</div>
+
+        <div class="tool-row">
+            <div class="tool-label">
+                <h5>“Prof actually here?”</h5>
+                <p id="profVoteCounts">Live status: {{ class_tools.prof_here_votes.yes }} Yes / {{ class_tools.prof_here_votes.no }} No</p>
+            </div>
+            <div class="vote-btn-group">
+                <button class="vote-btn yes" onclick="castProfVote('yes')">👍 Here</button>
+                <button class="vote-btn no" onclick="castProfVote('no')">👎 Ghosted</button>
+            </div>
+        </div>
+
+        <div class="tool-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+            <div class="tool-label">
+                <h5>Vibe check</h5>
+                <p>How is that runtime loop handling?</p>
+            </div>
+            <div class="vibe-emojis">
+                <div class="vibe-wrapper" onclick="submitVibeCheck('lost')">
+                    <span class="vibe-emoji">😭</span>
+                    <span class="vibe-count" id="count-lost">{{ class_tools.vibe_counts.lost }}</span>
+                </div>
+                <div class="vibe-wrapper" onclick="submitVibeCheck('meh')">
+                    <span class="vibe-emoji">😐</span>
+                    <span class="vibe-count" id="count-meh">{{ class_tools.vibe_counts.meh }}</span>
+                </div>
+                <div class="vibe-wrapper" onclick="submitVibeCheck('got_it')">
+                    <span class="vibe-emoji">💡</span>
+                    <span class="vibe-count" id="count-got_it">{{ class_tools.vibe_counts.got_it }}</span>
+                </div>
+                <div class="vibe-wrapper" onclick="submitVibeCheck('great')">
+                    <span class="vibe-emoji">🔥</span>
+                    <span class="vibe-count" id="count-great">{{ class_tools.vibe_counts.great }}</span>
+                </div>
+                <div class="vibe-wrapper" onclick="submitVibeCheck('too_much')">
+                    <span class="vibe-emoji">🤯</span>
+                    <span class="vibe-count" id="count-too_much">{{ class_tools.vibe_counts.too_much }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">Instants Feed</div>
+        <form class="instant-form" action="/create_instant" method="POST">
+            <textarea name="content" rows="2" placeholder="Broadcast to the execution space..." required></textarea>
+            <div class="form-controls">
+                <select name="category">
+                    <option value="Urgent">Urgent</option>
+                    <option value="Academic">Academic</option>
+                    <option value="Ghost class">Ghost class</option>
+                </select>
+                <label style="font-size:0.7rem; color:var(--text-muted);">
+                    <input type="checkbox" name="anonymous" value="true"> Anonymous
+                </label>
+                <button type="submit" class="submit-btn">Broadcast ⚡</button>
+            </div>
+        </form>
+
+        <div id="instantsStream">
+            {% for post in instants %}
+            <div class="instant-post">
+                <span class="post-tag tag-{{ post.category.lower().split()[0] }}">{{ post.category }}</span>
+                <div class="post-meta">
+                    <strong>{{ post.author }}</strong> • {{ post.expires_in }}
+                    {% if post.verified %}<span class="stamp-verified">✓ Veteran Approved</span>{% endif %}
+                </div>
+                <div class="post-content">{{ post.content }}</div>
+                <div class="boost-row">
+                    <span id="boost-count-{{ post.id }}">🚀 {{ post.boosts }} boosts</span>
+                    <button class="boost-trigger-btn" onclick="boostPost('{{ post.id }}')">▲ Boost</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">
+            <span>Subject Performance</span>
+            <span style="font-size: 0.75rem; color: var(--accent-purple);">✨ Click for Practice Quiz / Mentors</span>
+        </div>
+
+        {% for subject in subjects %}
+        <div class="subject-row" onclick="openInteractive('{{ subject.name }}')">
+            <div class="subject-info">
+                <span>{{ subject.name }}</span>
+                <span style="font-weight: bold; color: var(--text-muted); font-size: 0.78rem;">
+                    Score: <span style="color: white; margin-right: 5px;">{{ subject.score }}%</span> |
+                    Attd: <span style="color: var(--accent-pink);">{{ subject.attendance }}%</span>
+                </span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill fill-{{ subject.status }}" style="width: {{ subject.score }}%;"></div>
+            </div>
+            <div class="insight-text">{{ subject.insight }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">Upcoming Classes <span>{{ current_day }}</span></div>
+        <div class="schedule-container">
+            {% for class in schedule %}
+            <div class="schedule-item">
+                <div class="time-col">{{ class.time }}</div>
+                <div class="details-col">
+                    <h5 style="color: {% if '⚡' in class.subject %}var(--accent-pink){% elif '❌' in class.subject %}var(--text-muted){% else %}white{% endif %};">{{ class.subject }}</h5>
+                    <p>{{ class.room }} {% if class.prof != '-' %}• {{ class.prof }}{% endif %}</p>
+                </div>
+                {% if class.tag %}<div class="tag-badge tag-{{ class.tag_class }}">{{ class.tag }}</div>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">Squad Leaderboard 🏆</div>
+        {% for user in leaderboard %}
+        <div class="leaderboard-item {% if user.is_user %}user-row{% endif %}">
+            <div class="rank-num">{{ user.rank }}</div>
+            <div class="avatar" {% if user.is_user %}style="background-color: var(--accent-pink);"{% endif %}>
+                {{ user.name[:2].upper() }}
+            </div>
+            <div class="name-val">{{ user.name }}</div>
+            <div class="xp-val">{{ user.xp }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<div class="modal" id="interactiveModal">
+    <div class="modal-content">
+        <h3 id="modalSubjectTitle">Subject Insights</h3>
+        <p id="modalDescription" style="margin-bottom: 15px; font-size:0.85rem; color:var(--text-muted);">Workload calibration metrics powered by BITzen.</p>
+
+        <div id="quizContainer" style="display:none; text-align: left; margin-bottom: 20px; background: #1a1d36; padding: 12px; border-radius: 8px;">
+            <strong style="font-size:0.85rem; color:var(--accent-pink);">Personalized Practice Quiz Task:</strong>
+            <p id="quizQuestion" style="margin-top:5px; font-size:0.9rem; color:white;"></p>
+            <p id="quizAnswer" style="display:none; margin-top:5px; font-size:0.85rem; color:var(--accent-green); font-weight:bold;"></p>
+
+            <button class="reveal-btn" id="revealAnswerBtn" onclick="document.getElementById('quizAnswer').style.display='block'">Reveal Answer</button>
+        </div>
+
+        <button class="action-btn" id="proctorBtn">Book 1-on-1 Mentor Session</button>
+        <button class="close-btn" onclick="closeModal()">Close Window</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('bg-animation-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+    class Particle {
+        constructor() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height; this.radius = Math.random()*1.2; this.speedX = Math.random()*0.2-0.1; this.speedY = Math.random()*0.2-0.1; }
+        update() { this.x += this.speedX; this.y += this.speedY; if(this.x<0||this.x>canvas.width) this.speedX*=-1; if(this.y<0||this.y>canvas.height) this.speedY*=-1; }
+        draw() { ctx.fillStyle = 'rgba(139, 92, 246, 0.15)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2); ctx.fill(); }
+    }
+    for(let i=0; i<30; i++) particles.push(new Particle());
+    function loop() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(loop); }
+    loop();
+
+    function castProfVote(choice) {
+        fetch('/vote_prof', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ vote: choice })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                document.getElementById('profVoteCounts').innerText = `Live status: ${data.votes.yes} Yes / ${data.votes.no} No`;
+            }
+        });
+    }
+
+    function submitVibeCheck(vibeValue) {
+        fetch('/submit_vibe', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ vibe: vibeValue })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                for (const [key, val] of Object.entries(data.vibe_counts)) {
+                    let badge = document.getElementById(`count-${key}`);
+                    if(badge) badge.innerText = val;
+                }
+            }
+        });
+    }
+
+    function boostPost(postId) {
+        fetch(`/boost_instant/${postId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                document.getElementById(`boost-count-${postId}`).innerText = `🚀 ${data.new_boost_count} boosts`;
+                if(data.verified) location.reload();
+            }
+        });
+    }
+
+    function openInteractive(subjectName) {
+        let cleanName = subjectName.replace(/⚡|❌/g, "").trim().split("(")[0].trim();
+        document.getElementById('modalSubjectTitle').innerText = cleanName;
+        document.getElementById('interactiveModal').style.display = 'flex';
+
+        fetch(`/get_quiz/${encodeURIComponent(cleanName)}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data && data.length > 0 && data[0].q) {
+                    document.getElementById('quizContainer').style.display = 'block';
+                    document.getElementById('quizQuestion').innerText = "Q: " + data[0].q;
+                    document.getElementById('quizAnswer').innerText = "Ans: " + data[0].a;
+                    document.getElementById('quizAnswer').style.display = 'none';
+                } else {
+                    document.getElementById('quizContainer').style.display = 'none';
+                }
+            });
+
+        document.getElementById('proctorBtn').onclick = function() {
+            fetch('/book_proctor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject: cleanName })
+            })
+            .then(res => res.json())
+            .then(resData => {
+                alert(resData.message);
+                closeModal();
+            });
+        };
+    }
+    function closeModal() { document.getElementById('interactiveModal').style.display = 'none'; }
+</script>
+
+</body>
+</html>
