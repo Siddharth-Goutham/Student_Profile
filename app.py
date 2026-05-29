@@ -158,10 +158,10 @@ def get_live_schedule(day_name):
 def login():
     error = None
     if request.method == 'POST':
-        if request.form.get('username') == "admin" and request.form.get('password') == "password123":
+        if request.form.get('username') == "Siddharth" and request.form.get('password') == "password123":
             session['logged_in'] = True
             return redirect(url_for('dashboard'))
-        error = "Invalid engineering keys. Try admin / password123"
+        error = "Invalid engineering keys. Try your-name / password123"
     return render_template('login.html', error=error)
 
 
